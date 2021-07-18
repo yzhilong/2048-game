@@ -35,45 +35,95 @@ class Board:
 
 	def __left_swipe_on_row(self, row_index):
 		left_index = 0
+		collapsed = False
+		for i in range(self.ncols):
+			if self.board[row_index, i] != 0:
+				if left_index != i:
+					collapsed = True
+				self.__swap_on_board((row_index, left_index), (row_index, i))
+				left_index += 1
+
+		for i in range(1, self.ncols):
+			if self.board[row_index, i] == self.board[row_index, i-1]:
+				self.board[row_index, i-1] *= 2
+				self.board[row_index, i] = 0
+				collapsed = True
+
+		left_index = 0
 		for i in range(self.ncols):
 			if self.board[row_index, i] != 0:
 				self.__swap_on_board((row_index, left_index), (row_index, i))
 				left_index += 1
 
-		return left_index == self.ncols -1
+		return collapsed
 
 	def __up_swipe_on_col(self, col_index):
 		top_index = 0
+		collapsed = False
 		for i in range(self.nrows):
 			if self.board[i, col_index] != 0:
-				self.__swap_on_board((i, col_index), (top_index, col_index))
+				if top_index != i:
+					collapsed = True
+				self.__swap_on_board((top_index, col_index), (i, col_index))
 				top_index += 1
-		return top_index == self.nrows - 1
+
+		for i in range(1, self.nrows):
+			if self.board[i, col_index] == self.board[i-1, col_index]:
+				self.board[i-1, col_index] *= 2
+				self.board[i, col_index] = 0
+				collapsed = True
+
+		top_index = 0
+		for i in range(self.nrows):
+			if self.board[i, col_index] != 0:
+				self.__swap_on_board((top_index, col_index), (i, col_index))
+				top_index += 1
+
+		return collapsed
 
 	def __left_swipe(self):
-		for i in range(self.nrows):
-			self.__left_swipe_on_row(i)
-
-	def __right_swipe(self):
+		collapsed = False
 		for i in range(self.nrows):
 			if self.__left_swipe_on_row(i):
-				for j in range(self.ncols//2):
-					self.__swap_on_board((i, j), (i, -j-1))
+				collapsed = True
+		return collapsed
+
+	def __right_swipe(self):
+		collapsed = False
+		for i in range(self.nrows):
+			for j in range(self.ncols//2):
+				self.__swap_on_board((i, j), (i, -j-1))
+			if self.__left_swipe_on_row(i):
+				collapsed = True
+			for j in range(self.ncols//2):
+				self.__swap_on_board((i, j), (i, -j-1))
+		return collapsed
 
 	def __up_swipe(self):
-		for i in range(self.ncols):
-			self.__up_swipe_on_col(i)
-
-	def __down_swipe(self):
+		collapsed = False
 		for i in range(self.ncols):
 			if self.__up_swipe_on_col(i):
-				for j in range(self.nrows//2):
-					self.__swap_on_board((j, i), (-j-1, i))
+				collapsed = True
+		return collapsed
+
+	def __down_swipe(self):
+		collapsed = False
+		for i in range(self.ncols):
+			for j in range(self.nrows//2):
+				self.__swap_on_board((j, i), (-j-1, i))
+			if self.__up_swipe_on_col(i):
+				collapsed = True
+			for j in range(self.nrows//2):
+				self.__swap_on_board((j, i), (-j-1, i))
+		return collapsed
 
 	def __display(self):
 		print(self.board)
 
 	def play(self):
+		"""
+		NEED TO ADD LOGIC TO END GAME AND CALCULATE SCORE
+		"""
 		moves = [self.__up_swipe, self.__left_swipe, self.__down_swipe, self.__right_swipe]
 		movement_mapping = {char: moves[pos] for pos, char in enumerate('WASD')}
 		while self.board.max() < 2048:
