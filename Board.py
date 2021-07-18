@@ -122,16 +122,35 @@ class Board:
 
 	def play(self):
 		"""
-		NEED TO ADD LOGIC TO END GAME AND CALCULATE SCORE
+		NEED TO ADD LOGIC TO CALCULATE SCORE
 		"""
 		moves = [self.__up_swipe, self.__left_swipe, self.__down_swipe, self.__right_swipe]
 		movement_mapping = {char: moves[pos] for pos, char in enumerate('WASD')}
+		board_copy = Board(self.nrows, self.ncols)
+		lost = False
 		while self.board.max() < 2048:
 			self.__display()
-			movement = movement_mapping[input("Play with WASD: ").upper()[0]]
-			movement()
-			self.__add_new_numbers()
-		print('GAME WON')
+			direction = input("Play with WASD: ").upper()[0]
+			if direction not in movement_mapping:
+				direction = input("Play with WASD: ").upper()[0]
+			did_move = movement_mapping[direction]()
+			if did_move:
+				self.__add_new_numbers()
+
+				# TODO: Make this more efficient
+				board_copy.board = self.board.copy()
+				can_swipe_up = board_copy.__up_swipe()
+				can_swipe_left = board_copy.__left_swipe()
+				if not (can_swipe_left or can_swipe_up):
+					lost = True
+					break
+			else:
+				print(f"'{direction}'" + ' is an INVALID MOVE')
+
+		if not lost:
+			print('GAME WON')
+		else:
+			print('GAME LOST')
 		self.__display()
 
 
