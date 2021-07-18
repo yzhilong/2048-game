@@ -130,9 +130,15 @@ class Board:
 		lost = False
 		while self.board.max() < 2048:
 			self.__display()
-			direction = input("Play with WASD: ").upper()[0]
-			if direction not in movement_mapping:
-				direction = input("Play with WASD: ").upper()[0]
+			raw_input_value = input("Play with WASD: ").upper()
+			while len(raw_input_value) == 0:
+				raw_input_value = input("Play with WASD: ").upper()
+			direction = raw_input_value[0]
+			while direction not in movement_mapping:
+				raw_input_value = input("Play with WASD: ").upper()
+				while len(raw_input_value) == 0:
+					raw_input_value = input("Play with WASD: ").upper()
+				direction = raw_input_value[0]
 			did_move = movement_mapping[direction]()
 			if did_move:
 				self.__add_new_numbers()
@@ -153,7 +159,6 @@ class Board:
 			print('GAME LOST')
 		self.__display()
 
-
-
-
-
+if __name__ == "__main__":
+	b = Board(4,4)
+	b.play()
