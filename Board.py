@@ -8,6 +8,7 @@ class Board:
 		self.random = random.Random()
 		self.random.seed(random_seed)
 		self.board = np.zeros((nrows, ncols))
+		self.score = 0
 
 		self.__add_new_numbers()
 
@@ -48,6 +49,7 @@ class Board:
 				self.board[row_index, i-1] *= 2
 				self.board[row_index, i] = 0
 				collapsed = True
+				self.score += self.board[row_index, i-1]
 
 		left_index = 0
 		for i in range(self.ncols):
@@ -72,6 +74,7 @@ class Board:
 				self.board[i-1, col_index] *= 2
 				self.board[i, col_index] = 0
 				collapsed = True
+				self.score += self.board[i-1, col_index]
 
 		top_index = 0
 		for i in range(self.nrows):
@@ -119,11 +122,15 @@ class Board:
 
 	def __display(self):
 		print(self.board)
+		print(f"Current score: {self.score}")
+
+	def reset(self):
+		self.score = 0
+		for i in range(self.nrows):
+			for j in range(self.ncols):
+				self.board[i, j] = 0
 
 	def play(self):
-		"""
-		NEED TO ADD LOGIC TO CALCULATE SCORE
-		"""
 		moves = [self.__up_swipe, self.__left_swipe, self.__down_swipe, self.__right_swipe]
 		movement_mapping = {char: moves[pos] for pos, char in enumerate('WASD')}
 		board_copy = Board(self.nrows, self.ncols)
@@ -158,7 +165,12 @@ class Board:
 		else:
 			print('GAME LOST')
 		self.__display()
+		output = self.score
+		self.reset()
+		return output
+
+
 
 if __name__ == "__main__":
-	b = Board(4,4)
+	b = Board(4, 4)
 	b.play()
